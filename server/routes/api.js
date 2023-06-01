@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const { User } = require("../models");
 const { check, validationResult } = require("express-validator");
 const jwt = require('jsonwebtoken');
@@ -55,10 +56,12 @@ router.post("/login", async (req, res) => {
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ userId: user.id }, process.env.SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ userId: user.id }, process.env.SECRET, {
+      expiresIn: "24h",
+    });
 
-    // Return the token
-    return res.status(200).json({ token });
+    // Return a success message or any other data you need
+    return res.status(200).json({ message: "Login successful", token });
   } catch (error) {
     console.error("Error logging in user:", error);
     return res.status(500).json({ error: "Internal server error" });
@@ -102,7 +105,7 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ error: "No token provided" });
   }
 
-  jwt.verify(token, 'your-secret-key', (err, user) => {
+  jwt.verify(token, process.env.SECRET, (err, user) => {
     if (err) {
       return res.status(403).json({ error: "Invalid token" });
     }
@@ -110,6 +113,5 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
-
 
 module.exports = router;
