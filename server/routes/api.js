@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { User } = require("../models");
 const { check, validationResult } = require("express-validator");
-const jwt = require('jsonwebtoken');
+const axios = require('axios');
 
 // REGISTER user
 router.post("/register", async (req, res) => {
@@ -113,5 +113,18 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+
+//GET pokemon name
+router.get('/pokemon/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
+    const pokemonName = response.data.name;
+    res.json({ name: pokemonName });
+  } catch (error) {
+    console.error('Error fetching Pokémon:', error);
+    res.status(500).json({ error: 'Failed to fetch Pokémon' });
+  }
+});
 
 module.exports = router;
