@@ -8,8 +8,15 @@ const User = sequelize.define("users", {
   password: Sequelize.STRING,
   elementType: Sequelize.STRING,
   team: {
-    type: Sequelize.ARRAY(Sequelize.JSONB),
-    defaultValue: [],
+    type: Sequelize.TEXT,
+    defaultValue: "[]",
+    get() {
+      const team = this.getDataValue("team");
+      return JSON.parse(team);
+    },
+    set(value) {
+      this.setDataValue("team", JSON.stringify(value));
+    },
   },
 });
 

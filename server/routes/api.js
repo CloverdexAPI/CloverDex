@@ -9,7 +9,7 @@ const axios = require('axios');
 // REGISTER user
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, username, password, elementType } = req.body;
+    const { name, email, username, password, elementType, team } = req.body;
 
     // Check if the user already exists
     const existingUser = await User.findOne({ where: { email } });
@@ -28,6 +28,7 @@ router.post("/register", async (req, res) => {
       username,
       password: hashedPassword,
       elementType,
+      team
     });
 
     // Return the newly created user
@@ -86,7 +87,8 @@ router.get("/user", authenticateToken, async (req, res) => {
       name: user.name,
       username: user.username,
       email: user.email,
-      elementType: user.elementType
+      elementType: user.elementType,
+      team: user.team
     };
 
     return res.status(200).json(userData);
