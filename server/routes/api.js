@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../models");
 const { check, validationResult } = require("express-validator");
 const axios = require('axios');
+const { sequelize } = require("../db");
 
 // REGISTER user
 router.post("/register", async (req, res) => {
@@ -152,21 +153,41 @@ router.post("/user/team", authenticateToken, async (req, res) => {
       type,
     };
 
-    console.log("TEST", typeof user)
+    // Initialize the team property as an empty array if it's not already
+    if (!Array.isArray(user.team)) {
+      user.team = [];
+    }
 
     // Add the Pokémon object to the user's team array
-    user.team = [...user.team, pokemon];
+    user.team.push(pokemon);
 
     // Save the updated user record
     await user.save();
 
-    // Return a success message or any other data you need
-    return res.status(200).json({ message: "Pokémon added to team", user });
+    // Return a success message along with the serialized user object
+    const serializedUser = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      password: user.password,
+      elementType: user.elementType,
+      team: user.team,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+    return res.status(200).json({ message: "Pokémon added to team", user: serializedUser });
   } catch (error) {
     console.error("Error adding Pokémon to team:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
+
+
+
+
 
 
 
