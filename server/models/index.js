@@ -8,9 +8,9 @@ const User = sequelize.define("users", {
   password:  DataTypes.STRING,
   elementType:  DataTypes.STRING,
   team: {
-    type: DataTypes.ARRAY(DataTypes.JSON),
+    type: DataTypes.ARRAY(DataTypes.JSON), // Specify the column type as an array of JSON objects
+    defaultValue: [], // Set a default empty array
     allowNull: false,
-    defaultValue: [],
   },
 });
 

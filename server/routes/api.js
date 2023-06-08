@@ -5,11 +5,12 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../models");
 const { check, validationResult } = require("express-validator");
 const axios = require('axios');
+const { sequelize } = require("../db");
 
 // REGISTER user
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, username, password, elementType, team } = req.body;
+    const { name, email, username, password, elementType} = req.body;
     
     // Check if the user already exists
     const existingUser = await User.findOne({ where: { email } });
@@ -28,8 +29,7 @@ router.post("/register", async (req, res) => {
       email,
       username,
       password: hashedPassword,
-      elementType,
-      team
+      elementType
     });
 
     // Return the newly created user
@@ -152,21 +152,53 @@ router.post("/user/team", authenticateToken, async (req, res) => {
       type,
     };
 
-    console.log("TEST", typeof user)
+    // Debugging statement - log the value of user.team before parsing
+    console.log("user.team before parsing:", typeof user.team);
+
+    // Parse the user.team JSON string to a JavaScript array
+    let parsedTeam = [];
+    try {
+      parsedTeam = JSON.parse(user.team || "[]");
+    } catch (error) {
+      console.error("Error parsing team array:", error);
+    }
+
+
+    // Debugging statement - log the value of parsedTeam
+    console.log("parsedTeam:", parsedTeam);
 
     // Add the Pokémon object to the user's team array
-    user.team = [...user.team, pokemon];
+    parsedTeam.push(pokemon);
+
+    // Convert the updated team array back to a JSON string
+    user.team = JSON.stringify(parsedTeam);
 
     // Save the updated user record
     await user.save();
 
-    // Return a success message or any other data you need
-    return res.status(200).json({ message: "Pokémon added to team", user });
+    // Return a success message along with the serialized user object
+    const serializedUser = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      password: user.password,
+      elementType: user.elementType,
+      team: user.team,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+    return res.status(200).json({ message: "Pokémon added to team", user: serializedUser });
   } catch (error) {
     console.error("Error adding Pokémon to team:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
+
+
+
 
 
 
