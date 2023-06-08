@@ -10,7 +10,7 @@ const { sequelize } = require("../db");
 // REGISTER user
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, username, password, elementType, team } = req.body;
+    const { name, email, username, password, elementType} = req.body;
     
     // Check if the user already exists
     const existingUser = await User.findOne({ where: { email } });
@@ -29,8 +29,7 @@ router.post("/register", async (req, res) => {
       email,
       username,
       password: hashedPassword,
-      elementType,
-      team
+      elementType
     });
 
     // Return the newly created user
@@ -153,13 +152,26 @@ router.post("/user/team", authenticateToken, async (req, res) => {
       type,
     };
 
-    // Initialize the team property as an empty array if it's not already
-    if (!Array.isArray(user.team)) {
-      user.team = [];
+    // Debugging statement - log the value of user.team before parsing
+    console.log("user.team before parsing:", typeof user.team);
+
+    // Parse the user.team JSON string to a JavaScript array
+    let parsedTeam = [];
+    try {
+      parsedTeam = JSON.parse(user.team || "[]");
+    } catch (error) {
+      console.error("Error parsing team array:", error);
     }
 
+
+    // Debugging statement - log the value of parsedTeam
+    console.log("parsedTeam:", parsedTeam);
+
     // Add the Pokémon object to the user's team array
-    user.team.push(pokemon);
+    parsedTeam.push(pokemon);
+
+    // Convert the updated team array back to a JSON string
+    user.team = JSON.stringify(parsedTeam);
 
     // Save the updated user record
     await user.save();
@@ -182,7 +194,6 @@ router.post("/user/team", authenticateToken, async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 
 
