@@ -10,7 +10,7 @@ const axios = require('axios');
 router.post("/register", async (req, res) => {
   try {
     const { name, email, username, password, elementType, team } = req.body;
-
+    
     // Check if the user already exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
@@ -20,6 +20,7 @@ router.post("/register", async (req, res) => {
     // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+
 
     // Create the user
     const newUser = await User.create({
@@ -128,5 +129,45 @@ router.get('/pokemon/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch Pokémon' });
   }
 });
+
+
+// POST route to add a Pokémon to user's team
+router.post("/user/team", authenticateToken, async (req, res) => {
+  try {
+    // Extract the userId from the authenticated request
+    const userId = req.user.userId;
+
+    // Fetch the user from the database
+    const user = await User.findOne({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Extract the Pokémon details from the request body
+    const { name, type } = req.body;
+
+    // Create a new Pokémon object
+    const pokemon = {
+      name,
+      type,
+    };
+
+    console.log("TEST", typeof user)
+
+    // Add the Pokémon object to the user's team array
+    user.team = [...user.team, pokemon];
+
+    // Save the updated user record
+    await user.save();
+
+    // Return a success message or any other data you need
+    return res.status(200).json({ message: "Pokémon added to team", user });
+  } catch (error) {
+    console.error("Error adding Pokémon to team:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 
 module.exports = router;

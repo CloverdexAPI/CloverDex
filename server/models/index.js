@@ -1,22 +1,16 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const { sequelize } = require("../db");
 
 const User = sequelize.define("users", {
-  name: Sequelize.STRING,
-  email: Sequelize.STRING,
-  username: Sequelize.STRING,
-  password: Sequelize.STRING,
-  elementType: Sequelize.STRING,
+  name:  DataTypes.STRING,
+  email:  DataTypes.STRING,
+  username:  DataTypes.STRING,
+  password:  DataTypes.STRING,
+  elementType:  DataTypes.STRING,
   team: {
-    type: Sequelize.TEXT,
-    defaultValue: "[]",
-    get() {
-      const team = this.getDataValue("team");
-      return JSON.parse(team);
-    },
-    set(value) {
-      this.setDataValue("team", JSON.stringify(value));
-    },
+    type: DataTypes.ARRAY(DataTypes.JSON),
+    allowNull: false,
+    defaultValue: [],
   },
 });
 
