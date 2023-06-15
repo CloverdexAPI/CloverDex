@@ -168,8 +168,26 @@ router.put("/user", authenticateToken, async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+// GET all users
+router.get("/users", async (req, res) => {
+  try {
+    const users = await User.findAll();
 
+    // Return the users' data
+    const usersData = users.map((user) => ({
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      elementType: user.elementType,
+    }));
 
+    return res.status(200).json(usersData);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
 
