@@ -4,14 +4,14 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { User } = require("../models");
 const { check, validationResult } = require("express-validator");
-const axios = require('axios');
+const axios = require("axios");
 const { sequelize } = require("../db");
 
 // REGISTER user
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, username, password, elementType} = req.body;
-    
+    const { name, email, username, password, elementType } = req.body;
+
     // Check if the user already exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
@@ -22,14 +22,13 @@ router.post("/register", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-
     // Create the user
     const newUser = await User.create({
       name,
       email,
       username,
       password: hashedPassword,
-      elementType
+      elementType,
     });
 
     // Return the newly created user
@@ -70,7 +69,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-
 // GET user
 router.get("/user", authenticateToken, async (req, res) => {
   try {
@@ -88,7 +86,7 @@ router.get("/user", authenticateToken, async (req, res) => {
       name: user.name,
       username: user.username,
       email: user.email,
-      elementType: user.elementType
+      elementType: user.elementType,
     };
 
     return res.status(200).json(userData);
@@ -100,8 +98,8 @@ router.get("/user", authenticateToken, async (req, res) => {
 
 // Middleware to authenticate the JWT token
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({ error: "No token provided" });
@@ -117,18 +115,17 @@ function authenticateToken(req, res, next) {
 }
 
 //GET pokemon name
-router.get('/pokemon/:id', async (req, res) => {
+router.get("/pokemon/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
     const pokemonName = response.data.name;
     res.json({ name: pokemonName });
   } catch (error) {
-    console.error('Error fetching Pokémon:', error);
-    res.status(500).json({ error: 'Failed to fetch Pokémon' });
+    console.error("Error fetching Pokémon:", error);
+    res.status(500).json({ error: "Failed to fetch Pokémon" });
   }
 });
-
 
 // PUT route to edit user information
 router.put("/user", authenticateToken, async (req, res) => {
@@ -162,18 +159,36 @@ router.put("/user", authenticateToken, async (req, res) => {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
-    return res.status(200).json({ message: "User information updated", user: serializedUser });
+    return res
+      .status(200)
+      .json({ message: "User information updated", user: serializedUser });
   } catch (error) {
     console.error("Error editing user information:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
 
+// DELETE user
+router.delete("/user", authenticateToken, async (req, res) => {
+  try {
+    // Extract the userId from the authenticated request
+    const userId = req.user.userId;
 
+    // Fetch the user from the database
+    const user = await User.findOne({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
+    // Delete the user from the database
+    await user.destroy();
 
-
-
-
+    // Return a success message
+    return res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 module.exports = router;
