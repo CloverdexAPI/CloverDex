@@ -188,6 +188,30 @@ router.get("/users", async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+// DELETE user
+router.delete("/user", authenticateToken, async (req, res) => {
+  try {
+    // Extract the userId from the authenticated request
+    const userId = req.user.userId;
+
+    // Fetch the user from the database
+    const user = await User.findOne({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Delete the user
+    await user.destroy();
+
+    // Return a success message or any other data you need
+    return res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 
 
 
