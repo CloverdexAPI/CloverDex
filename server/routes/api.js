@@ -88,8 +88,7 @@ router.get("/user", authenticateToken, async (req, res) => {
       name: user.name,
       username: user.username,
       email: user.email,
-      elementType: user.elementType,
-      team: user.team
+      elementType: user.elementType
     };
 
     return res.status(200).json(userData);
@@ -131,8 +130,8 @@ router.get('/pokemon/:id', async (req, res) => {
 });
 
 
-// POST route to add a Pokémon to user's team
-router.post("/user/team", authenticateToken, async (req, res) => {
+// PUT route to edit user information
+router.put("/user", authenticateToken, async (req, res) => {
   try {
     // Extract the userId from the authenticated request
     const userId = req.user.userId;
@@ -143,54 +142,29 @@ router.post("/user/team", authenticateToken, async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Extract the Pokémon details from the request body
-    const { name, type } = req.body;
+    // Extract the updated user information from the request body
+    const { name, email, username } = req.body;
 
-    // Create a new Pokémon object
-    const pokemon = {
-      name,
-      type,
-    };
-
-    // Debugging statement - log the value of user.team before parsing
-    console.log("user.team before parsing:", typeof user.team);
-
-    // Parse the user.team JSON string to a JavaScript array
-    let parsedTeam = [];
-    try {
-      parsedTeam = JSON.parse(user.team || "[]");
-    } catch (error) {
-      console.error("Error parsing team array:", error);
-    }
-
-
-    // Debugging statement - log the value of parsedTeam
-    console.log("parsedTeam:", parsedTeam);
-
-    // Add the Pokémon object to the user's team array
-    parsedTeam.push(pokemon);
-
-    // Convert the updated team array back to a JSON string
-    user.team = JSON.stringify(parsedTeam);
+    // Update the user's information
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.username = username || user.username;
 
     // Save the updated user record
     await user.save();
 
-    // Return a success message along with the serialized user object
+    // Return the serialized user object
     const serializedUser = {
       id: user.id,
       name: user.name,
       email: user.email,
       username: user.username,
-      password: user.password,
-      elementType: user.elementType,
-      team: user.team,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
-    return res.status(200).json({ message: "Pokémon added to team", user: serializedUser });
+    return res.status(200).json({ message: "User information updated", user: serializedUser });
   } catch (error) {
-    console.error("Error adding Pokémon to team:", error);
+    console.error("Error editing user information:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
