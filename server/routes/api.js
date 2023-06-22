@@ -70,7 +70,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-
 // GET user
 router.get("/user", authenticateToken, async (req, res) => {
   try {
@@ -129,7 +128,6 @@ router.get('/pokemon/:id', async (req, res) => {
   }
 });
 
-
 // PUT route to edit user information
 router.put("/user", authenticateToken, async (req, res) => {
   try {
@@ -168,6 +166,7 @@ router.put("/user", authenticateToken, async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+
 // GET all users
 router.get("/users", async (req, res) => {
   try {
@@ -188,6 +187,7 @@ router.get("/users", async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+
 // DELETE user
 router.delete("/user", authenticateToken, async (req, res) => {
   try {
@@ -210,12 +210,6 @@ router.delete("/user", authenticateToken, async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
-
-
-
-
-
-
 
 
 module.exports = router;
