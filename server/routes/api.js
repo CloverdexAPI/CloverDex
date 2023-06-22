@@ -143,12 +143,14 @@ router.put("/user", authenticateToken, async (req, res) => {
     }
 
     // Extract the updated user information from the request body
-    const { name, email, username } = req.body;
+    const { name, email, username, elementType} = req.body;
 
     // Update the user's information
     user.name = name || user.name;
     user.email = email || user.email;
     user.username = username || user.username;
+    user.elementType = elementType || user.elementType;
+
 
     // Save the updated user record
     await user.save();
@@ -159,6 +161,7 @@ router.put("/user", authenticateToken, async (req, res) => {
       name: user.name,
       email: user.email,
       username: user.username,
+      elementType: user.elementType,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
