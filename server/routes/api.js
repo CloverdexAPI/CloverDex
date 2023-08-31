@@ -107,11 +107,14 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ error: "No token provided" });
   }
 
-  jwt.verify(token, process.env.SECRET, (err, user) => {
+  jwt.verify(token, process.env.SECRET, (err, decodedToken) => {
     if (err) {
+      console.error("Invalid token:", err);
       return res.status(403).json({ error: "Invalid token" });
     }
-    req.user = user;
+    console.log("Decoded token:", decodedToken);
+    console.log("Token expiration:", new Date(decodedToken.exp * 1000).toISOString());
+    req.user = decodedToken; // Set the decoded token as the user
     next();
   });
 }
@@ -143,12 +146,14 @@ router.put("/user", authenticateToken, async (req, res) => {
     }
 
     // Extract the updated user information from the request body
-    const { name, email, username } = req.body;
+    const { name, email, username, elementType} = req.body;
 
     // Update the user's information
     user.name = name || user.name;
     user.email = email || user.email;
     user.username = username || user.username;
+    user.elementType = elementType || user.elementType;
+
 
     // Save the updated user record
     await user.save();
@@ -159,6 +164,7 @@ router.put("/user", authenticateToken, async (req, res) => {
       name: user.name,
       email: user.email,
       username: user.username,
+      elementType: user.elementType,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
@@ -212,10 +218,13 @@ router.delete("/user", authenticateToken, async (req, res) => {
 });
 
 
-
-
-
-
-
+router.post("/logout", authenticateToken, async (req, res) => {
+  try {
+    return res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    console.error("Logout failed:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 module.exports = router;
