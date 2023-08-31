@@ -107,11 +107,14 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ error: "No token provided" });
   }
 
-  jwt.verify(token, process.env.SECRET, (err, user) => {
+  jwt.verify(token, process.env.SECRET, (err, decodedToken) => {
     if (err) {
+      console.error("Invalid token:", err);
       return res.status(403).json({ error: "Invalid token" });
     }
-    req.user = user;
+    console.log("Decoded token:", decodedToken);
+    console.log("Token expiration:", new Date(decodedToken.exp * 1000).toISOString());
+    req.user = decodedToken; // Set the decoded token as the user
     next();
   });
 }
@@ -215,6 +218,14 @@ router.delete("/user", authenticateToken, async (req, res) => {
 });
 
 
+router.post("/logout", authenticateToken, async (req, res) => {
+  try {
+    return res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    console.error("Logout failed:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
 
