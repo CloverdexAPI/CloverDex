@@ -1,6 +1,9 @@
 const request = require('supertest');
 const app = require('../server/app'); // Replace with the actual path to your Express app
-const { sequelize, User } = require('../server/models'); // Replace with the actual path to your database models
+const { User } = require('../server/models'); // Replace with the actual path to your database models
+const {sequelize} = require('../server/db'); 
+const bcrypt = require("bcrypt");
+
 
 beforeAll(async () => {
   // Initialize or reset your database before running tests (e.g., migrate and seed)
@@ -12,8 +15,8 @@ afterAll(async () => {
   await sequelize.close();
 });
 
-describe('POST /register', () => {
-  it('should register a new user', async () => {
+describe('POST /login', () => {
+  it('should log in a user with valid credentials', async () => {
     const userData = {
       name: 'Test User',
       email: 'test@example.com',
@@ -22,26 +25,26 @@ describe('POST /register', () => {
       elementType: 'example',
     };
 
-    const response = await request(app)
-      .post('/register')
+    const registerResponse = await request(app)
+      .post('/api/register')
       .send(userData);
 
-    expect(response.status).toBe(201);
-    expect(response.body).toHaveProperty('name', userData.name);
-    expect(response.body).toHaveProperty('email', userData.email);
+    const loginData = {
+      email: 'test@example.com',
+      password: 'password',
+    };
+
+    const response = await request(app)
+      .post('/api/login')
+      .send(loginData);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('message', 'Login successful');
+    expect(response.body).toHaveProperty('token');
     // Add more assertions as needed
   });
 
-  it('should handle user already exists', async () => {
-    // Add a user to the database with the same email before running this test
-    const existingUser = await User.create({
-      name: 'Existing User',
-      email: 'test@example.com',
-      username: 'existinguser',
-      password: 'existingpassword',
-      elementType: 'example',
-    });
-
+  it('should handle invalid password', async () => {
     const userData = {
       name: 'Test User',
       email: 'test@example.com',
@@ -50,12 +53,36 @@ describe('POST /register', () => {
       elementType: 'example',
     };
 
-    const response = await request(app)
-      .post('/register')
+    const registerResponse = await request(app)
+      .post('/api/register')
       .send(userData);
 
-    expect(response.status).toBe(400);
-    expect(response.body).toHaveProperty('error', 'User already exists');
+    const loginData = {
+      email: 'test@example.com',
+      password: 'wrongpassword', // Provide an incorrect password
+    };
+
+    const response = await request(app)
+      .post('/api/login')
+      .send(loginData);
+
+    expect(response.status).toBe(401);
+    expect(response.body).toHaveProperty('error', 'Invalid password');
   });
 
+  it('should handle user not found', async () => {
+    const loginData = {
+      email: 'nonexistent@example.com', // Provide an email that doesn't exist
+      password: 'password',
+    };
+
+    const response = await request(app)
+      .post('/api/login')
+      .send(loginData);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error', 'User not found');
+  });
+
+  // Add more test cases for error handling, validation, etc.
 });

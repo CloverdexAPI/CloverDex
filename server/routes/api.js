@@ -22,7 +22,6 @@ router.post("/register", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-
     // Create the user
     const newUser = await User.create({
       name,
@@ -52,7 +51,7 @@ router.post("/login", async (req, res) => {
     }
 
     // Check if the password is correct
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(password, user.dataValues.password);
     if (!passwordMatch) {
       return res.status(401).json({ error: "Invalid password" });
     }
