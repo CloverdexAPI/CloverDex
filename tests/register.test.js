@@ -3,6 +3,7 @@ const app = require('../server/app'); // Replace with the actual path to your Ex
 const { User } = require('../server/models'); // Replace with the actual path to your database models
 const {sequelize} = require('../server/db'); 
 
+
 beforeAll(async () => {
   // Initialize or reset your database before running tests (e.g., migrate and seed)
   await sequelize.sync({ force: true });
