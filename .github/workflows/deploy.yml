@@ -27,6 +27,11 @@ jobs:
           sudo apt-get install -y python3-pip
           pip3 install awsebcli --upgrade --user
 
+      - name: Initialize Elastic Beanstalk CLI
+        run: |
+          eb init -r us-east-1 -p "64bit Amazon Linux 2" MVCICD-env
+          eb use MVCICD-env
+
       - name: Deploy to Elastic Beanstalk
         run: |
-          eb deploy MVCICD-env
+          eb deploy
