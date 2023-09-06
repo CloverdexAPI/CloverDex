@@ -1,9 +1,10 @@
-name: Deploy to AWS Elastic Beanstalk
+name: AWS Elastic Beanstalk Deployment
 
 on:
-  push:
-    branches:
-      - main # Adjust the branch name as needed
+  workflow_run:
+    workflows: ["Node.js CI"]
+    types:
+      - completed
 
 jobs:
   deploy:
@@ -26,32 +27,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install python3-pip
           pip3 install awsebcli
-
-      - name: Configure Elastic Beanstalk CLI
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.ACCESSKEY }}" >> $GITHUB_ENV
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.SECRETKEYAWS }}" >> $GITHUB_ENV
-          eb config set aws_access_key_id $AWS_ACCESS_KEY_ID
-          eb config set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          eb config set default.region us-east-1
-        env:
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_REGION: us-east-1
-          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESSKEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRETKEYAWS }}
-
-
-
-
-
-      # Initialize Elastic Beanstalk Environment (add this step)
       - name: Initialize Elastic Beanstalk Environment
         run: |
           # Initialize Elastic Beanstalk environment
           eb init -r us-east-1 -p "Node.js 18" TestingMVBack-env
           eb use TestingMVBack-env
-
       - name: Deploy to Elastic Beanstalk
         run: |
-          # Deploy to Elastic Beanstalk
           eb deploy TestingMVBack-env
