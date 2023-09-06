@@ -21,17 +21,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.SECRETKEYAWS }}
           aws-region: us-east-1
 
-      - name: Install Elastic Beanstalk CLI
+      - name: Initialize Elastic Beanstalk Environment
         run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip
-          pip3 install awsebcli --upgrade --user
-
-      - name: Initialize Elastic Beanstalk CLI
-        run: |
+          # Initialize Elastic Beanstalk environment
           eb init -r us-east-1 -p "64bit Amazon Linux 2" MVCICD-env
           eb use MVCICD-env
 
       - name: Deploy to Elastic Beanstalk
         run: |
-          eb deploy
+          eb deploy MVCICD-env
+
