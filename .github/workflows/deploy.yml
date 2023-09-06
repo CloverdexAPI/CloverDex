@@ -34,4 +34,5 @@ jobs:
           eb use TestingMVBack-env
       - name: Deploy to Elastic Beanstalk
         run: |
-          eb deploy TestingMVBack-env
+          eb deploy TestingMVBack-env --label Testing_MV_Back-version-1
+
