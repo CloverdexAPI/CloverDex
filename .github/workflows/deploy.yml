@@ -31,9 +31,9 @@ jobs:
       - name: Initialize Elastic Beanstalk Environment
         run: |
           # Initialize Elastic Beanstalk environment
-          eb init -r us-east-1 -p "Node.js 18" MVCICD-env
-          eb use MVCICD-env
+          eb init -r us-east-1 -p "Node.js 18" TestingMVBack-env
+          eb use TestingMVBack-env
 
       - name: Deploy to Elastic Beanstalk
         run: |
-          eb deploy MVCICD-env
+          eb deploy TestingMVBack-env
