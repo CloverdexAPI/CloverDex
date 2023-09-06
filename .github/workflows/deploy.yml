@@ -31,7 +31,7 @@ jobs:
       - name: Initialize Elastic Beanstalk Environment
         run: |
           # Initialize Elastic Beanstalk environment
-          eb init -r us-east-1 -p "6.0.0" MVCICD-env
+          eb init -r us-east-1 -p "Node.js 18 running on 64bit Amazon Linux 2023" MVCICD-env
           eb use MVCICD-env
 
       - name: Deploy to Elastic Beanstalk
