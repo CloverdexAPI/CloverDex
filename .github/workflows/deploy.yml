@@ -31,11 +31,12 @@ jobs:
         run: |
           echo "AWS_ACCESS_KEY_ID=${{ secrets.ACCESSKEY }}" >> $GITHUB_ENV
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.SECRETKEYAWS }}" >> $GITHUB_ENV
-          eb configure set aws_access_key_id ${{ secrets.ACCESSKEY }}
-          eb configure set aws_secret_access_key ${{ secrets.SECRETKEYAWS }}
-          eb configure set default.region us-east-1
+          eb config set aws_access_key_id ${{ secrets.ACCESSKEY }}
+          eb config set aws_secret_access_key ${{ secrets.SECRETKEYAWS }}
+          eb config set default.region us-east-1
         env:
           AWS_DEFAULT_REGION: us-east-1
+
 
 
 
