@@ -14,18 +14,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
+      - name: Install Render CLI
+        run: npm install -g @render/cli
 
-      - name: Install dependencies
-        run: npm install
+      - name: Log in to Render
+        env:
+          RENDER_EMAIL: ${{ secrets.RENDER_EMAIL }}
+          RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
+        run: render login --email $RENDER_EMAIL --token $RENDER_TOKEN
 
       - name: Deploy to Render
-        run: |
-          npm install -g @render/cli
-          render login --token ${{ secrets.RENDER_TOKEN }}
-          render deploy
-        env:
-          RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
+        run: render deploy
+
