@@ -1,4 +1,4 @@
-name: AWS Elastic Beanstalk Deployment
+name: Deploy to Render
 
 on:
   workflow_run:
@@ -14,25 +14,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up AWS CLI
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Install Node.js
+        uses: actions/setup-node@v2
         with:
-          aws-access-key-id: ${{ secrets.ACCESSKEY }}
-          aws-secret-access-key: ${{ secrets.SECRETKEYAWS }}
-          aws-region: us-east-1
+          node-version: 16
 
-      - name: Install Elastic Beanstalk CLI
-        run: |
-          # Install Elastic Beanstalk CLI
-          sudo apt-get update
-          sudo apt-get install python3-pip
-          pip3 install awsebcli
-      - name: Initialize Elastic Beanstalk Environment
-        run: |
-          # Initialize Elastic Beanstalk environment
-          eb init -r us-east-1 -p "Node.js 18" TestingMVBack-env
-          eb use TestingMVBack-env
-      - name: Deploy to Elastic Beanstalk
-        run: |
-          eb deploy TestingMVBack-env --label Testing_MV_Back-version-1
+      - name: Install dependencies
+        run: npm install
 
+      - name: Build
+        run: npm run start
+
+      - name: Deploy to Render
+        run: |
+          npm install -g @render/cli
+          render login --token ${{ secrets.RENDER_TOKEN }}
+          render deploy
+        env:
+          RENDER_TOKEN: ${{ secrets.RENDER_TOKEN }}
