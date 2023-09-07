@@ -8,6 +8,7 @@
   "scripts": {
     "test": "jest --watch-all --verbose",
     "nodemon" : "server.js",
+    "start": "node app.js",
     "test:register": "jest tests/register.test.js",
     "test:login": "jest tests/login.test.js"
   },
